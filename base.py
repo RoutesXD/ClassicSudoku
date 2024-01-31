@@ -70,7 +70,3 @@ def isEmpty(b):
             if b[i][j] == 0:
                 return (i, j)  # row, col
             
-display(board)
-print("\n\n\n")
-solve(board)
-display(board)
