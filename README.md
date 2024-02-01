@@ -1,2 +1,2 @@
-![level1](levels/lvl1.png)
-![level2](levels/lvl2.png)
+<img src="levels/lvl1" width="200" />
+<img src="levels/lvl2" width="200" />
