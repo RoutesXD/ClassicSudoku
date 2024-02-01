@@ -2,11 +2,13 @@ import pygame
 import time
 from base import *
 pygame.font.init()
-
+global level,strikes
+strikes = 0
+level = 0
 
 class Grid:
     board = [
-        [0,8,2,6,3,0,7,0,0],
+        [[0,8,2,6,3,0,7,0,0],
         [1,0,0,0,0,0,8,0,0],
         [3,5,0,0,0,8,0,0,9],
         [0,0,0,0,6,9,3,0,0],
@@ -14,13 +16,23 @@ class Grid:
         [4,0,3,0,0,0,6,0,5],
         [0,0,0,8,0,0,0,0,0],
         [8,7,9,3,4,5,0,0,0],
-        [0,0,0,9,0,0,0,7,8]
+        [0,0,0,9,0,0,0,7,8]],
+
+        [[6,0,0,0,0,5,0,4,0],
+        [0,0,2,4,0,0,0,7,0],
+        [0,9,3,6,0,0,0,0,0],
+        [7,0,0,0,0,2,0,9,0],
+        [5,0,0,0,0,0,0,0,6],
+        [0,3,0,7,0,0,0,0,8],
+        [0,0,0,0,0,9,1,6,0],
+        [0,4,0,0,0,7,2,0,0],
+        [0,6,0,5,0,0,0,0,4]],
     ]
 
     def __init__(self, rows, cols, width, height, win):
         self.rows = rows
         self.cols = cols
-        self.cubes = [[Cube(self.board[i][j], i, j, width, height) for j in range(cols)] for i in range(rows)]
+        self.cubes = [[Cube(self.board[level][i][j], i, j, width, height) for j in range(cols)] for i in range(rows)]
         self.width = width
         self.height = height
         self.model = None
@@ -204,19 +216,19 @@ def find_empty(bo):
 
 def redraw_window(win, board, strikes):
     win.fill((255,255,255))
-    # Draw time
     fnt = pygame.font.SysFont("comicsans", 40)
-    # Draw Strikes
     text = fnt.render("X " * strikes, 1, (255, 0, 0))
     win.blit(text, (20, 540))
-    # Draw grid and board
+    lvl = fnt.render(f"Level {level+1}", 1, (255,0,0))
+    win.blit(lvl, (200,540))
     board.draw()
 
 
 def main():
     win = pygame.display.set_mode((540,600))
     pygame.display.set_caption("Sudoku")
-    board = Grid(9, 9, 540, 540, win)
+    level = 1
+    board[level] = Grid(9, 9, 540, 540, win)
     key = None
     run = True
     strikes = 0
@@ -267,39 +279,41 @@ def main():
                 if event.key == pygame.K_KP9:
                     key = 9
                 if event.key == pygame.K_DELETE:
-                    board.clear()
+                    board[level].clear()
                     key = None
                 if event.key == pygame.K_BACKSPACE:
-                    board.clear()
+                    board[level].clear()
                     key = None
 
                 if event.key == pygame.K_SPACE:
-                    board.solve_gui()
+                    board[level].solve_gui()
 
                 if event.key == pygame.K_RETURN:
-                    i, j = board.selected
-                    if board.cubes[i][j].temp != 0:
-                        if board.place(board.cubes[i][j].temp):
+                    i, j = board[level].selected
+                    if board[level].cubes[i][j].temp != 0:
+                        if board[level].place(board[level].cubes[i][j].temp):
                             print("Correct")
                         else:
                             print("Incorrect")
                             strikes += 1
                         key = None
-                        if board.is_finished():
+                        if board[level].is_finished():
+                            level = level+1
+                            strikes = 0
                             print("You Win")
                 
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                clicked = board.click(pos)
+                clicked = board[level].click(pos)
                 if clicked:
-                    board.select(clicked[0], clicked[1])
+                    board[level].select(clicked[0], clicked[1])
                     key = None
 
-        if board.selected and key != None:
-            board.sketch(key)
+        if board[level].selected and key != None:
+            board[level].sketch(key)
 
-        redraw_window(win, board, strikes)
+        redraw_window(win, board[level], strikes)
         pygame.display.update()
 
 
